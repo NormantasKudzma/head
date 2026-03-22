@@ -30,10 +30,7 @@
         };
 
         function docLoad() {
-            auth2 = gapi.auth2.init({
-                client_id: document.querySelector('meta[name="google-signin-client_id"]').content,
-                scope: 'profile'
-            });
+            auth2 = gapi.auth2.getAuthInstance();
             auth2.enableDebugLogs();
             auth2.isSignedIn.listen(signinChanged);
             auth2.currentUser.listen(userChanged);
