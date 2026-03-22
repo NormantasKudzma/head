@@ -12,16 +12,34 @@
             console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
         }
 
+        var signinChanged = function (val) {
+            document.getElementById('status').innerText = val;
+        };
+
+
+        /**
+         * Listener method for when the user changes.
+         *
+         * @param {GoogleUser} user the updated user.
+         */
+        var userChanged = function (user) {
+            console.log('User now: ', user);
+            googleUser = user;
+            updateGoogleUser();
+            document.getElementById('curr-user-cell').innerText = JSON.stringify(user, undefined, 2);
+        };
+
         function docLoad() {
-            alert(auth2.isSignedIn.get())
-            if (auth2.isSignedIn.get()) {
-                var profile = auth2.currentUser.get().getBasicProfile();
-                console.log('ID: ' + profile.getId());
-                console.log('Full Name: ' + profile.getName());
-                console.log('Given Name: ' + profile.getGivenName());
-                console.log('Family Name: ' + profile.getFamilyName());
-                console.log('Image URL: ' + profile.getImageUrl());
-                console.log('Email: ' + profile.getEmail());
+            auth2 = gapi.auth2.init({
+                client_id: document.querySelector('meta[name="google-signin-client_id"]').content,
+                scope: 'profile'
+            });
+            auth2.enableDebugLogs();
+            auth2.isSignedIn.listen(signinChanged);
+            auth2.currentUser.listen(userChanged);
+
+            if (auth2.isSignedIn.get() == true) {
+                auth2.signIn();
             }
         }
     </script>
@@ -32,6 +50,7 @@
 
 <body onload="docLoad();">
     <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <div id="status"></div>
 </body>
 
 </html>
