@@ -1,51 +1,202 @@
 <html>
 
 <head>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        .row {
+            flex-direction: row;
+        }
+
+        .col {
+            flex-direction: column;
+        }
+
+        .container div {
+            display: flex;
+            background-color: #f1f1f1;
+            margin: 4px;
+            padding: 4px;
+            font-size: 18px;
+        }
+
+        .container button {
+            background-color: #ebeae5;
+            margin: 4px;
+            padding: 4px;
+            font-size: 18px;
+        }
+    </style>
+
+    <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 
     <script>
-        function onSignIn(googleUser) {
-            var profile = googleUser.getBasicProfile();
-            console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-            console.log('Name: ' + profile.getName());
-            console.log('Image URL: ' + profile.getImageUrl());
-            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-        }
-
-        var signinChanged = function (val) {
-            document.getElementById('status').innerText = val;
-        };
-
-        var userChanged = function (user) {
-            console.log('User now: ', user);
-            googleUser = user;
-            updateGoogleUser();
-            document.getElementById('curr-user-cell').innerText = JSON.stringify(user, undefined, 2);
-        };
-
-        function docLoad() {
-            auth2 = gapi.auth2.getAuthInstance();
-            //auth2.enableDebugLogs();
-            auth2.isSignedIn.listen(signinChanged);
-            auth2.currentUser.listen(userChanged);
-
-            if (auth2.isSignedIn.get() == true) {
-                auth2.signIn();
-            }
-        }
+        const API_VERSION = 1;
 
         function handleCredentialResponse(credential) {
             console.log(JSON.stringify(credential))
         }
+
+        function ready() {
+            let date = new Date();
+            document.getElementById("date").valueAsDate = date;
+
+            let time = new Intl.DateTimeFormat('it', { hour: '2-digit', minute: '2-digit' }).format(date);
+            document.getElementById("time").value = time;
+        }
+
+        function gapiLoaded() {
+            gapi.load('client', initializeGapiClient);
+        }
+
+        function gisLoaded() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: "943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com",
+                scope: 'https://www.googleapis.com/auth/spreadsheets',
+                callback: '',
+            });
+            gisInited = true;
+            maybeEnableButtons();
+        }
+
+        async function initializeGapiClient() {
+            await gapi.client.init({
+                apiKey: "AIzaSyCNKBzuYsmq-xSK0coA6OMAng6woa0TsoE",
+                discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+            });
+            gapiInited = true;
+
+            tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? '' : 'consent' });
+        }
+
+        function sendEvent(event) {
+            let metadata = `v${API_VERSION}.${Date.now() / 1000}`;
+            let eventDate = document.getElementById("date").value;
+            let eventTime = document.getElementById("time").value;
+
+
+            let howBad = document.getElementById("livello").value;
+            let painType = document.getElementById("tipo").value;
+
+            let painLocations = document.getElementById("pain_locations")
+                .querySelectorAll("input")
+                .values()
+                .toArray()
+                .filter(element => element.checked)
+                .map(element => element.value)
+                .join(',');
+
+                //actually send
+        }
+
+        function reportProblem() {
+
+        }
+
+        function logout() {
+
+        }
     </script>
 </head>
 
-<body>
+<body onload="ready()">
     <div id="g_id_onload" data-client_id="943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com"
-        data-callback="handleCredentialResponse">
+        data-callback="handleCredentialResponse" data-auto_select="true">
     </div>
     <div class="g_id_signin" data-type="standard" data-onsuccess="onSignIn"></div>
-    <div id="status"></div>
+
+    <div class="container col">
+        <div class="container row">
+            <div>Data</div>
+            <input type="date" id="date" name="date">
+            <input type="time" id="time" name="time" step="3600" required />
+        </div>
+
+        <div class="container col">
+            Livello di dolore
+            <fieldset id="livello">
+                <input type="radio" value="lieve" name="livello">Lieve</input>
+                <input type="radio" value="medio" name="livello">Medio</input>
+                <input type="radio" value="forte" name="livello">Forte</input>
+            </fieldset>
+        </div>
+
+        <div class="container col">
+            Tipo di dolore
+            <fieldset id="tipo">
+                <input type="radio" value="indeterminato" name="tipo" checked>Indeterminato</input>
+                <input type="radio" value="micranea" name="tipo">Micranea</input>
+                <input type="radio" value="tensione" name="tipo">Tensione</input>
+            </fieldset>
+        </div>
+
+        <div class="container col">
+            Locazione
+            <div id="pain_locations" class="container col"
+                style="overflow:scroll; height:100px; padding: 0px; margin: 0px">
+                <div>
+                    <input type="checkbox" name="check1" value="Testa fronte"></input>
+                    <label for="check1">Testa fronte</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check2" value="Testa top"></input>
+                    <label for="check2">Testa top</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check3" value="Tempia"></input>
+                    <label for="check3">Tempia</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check4" value="Cervicale"></input>
+                    <label for="check4">Cervicale</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check5" value="Occhi"></input>
+                    <label for="check5">Occhi</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check6" value="Sopra le occhi"></input>
+                    <label for="check6">Sopra le occhi</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check7" value="Zigomi"></input>
+                    <label for="check7">Zigomi</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check8" value="Teeth"></input>
+                    <label for="check8">Teeth</label>
+                </div>
+                <div>
+                    <input type="checkbox" name="check9" value="Bocca"></input>
+                    <label for="check9">Bocca</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="container col">
+            Mal di testa..
+            <div class="container row">
+                <button type="button" onclick="sendEvent('headache')">Attivo</button>
+                <button type="button" onclick="sendEvent('headache ended')">Fino</button>
+            </div>
+        </div>
+
+        <div class="container col">
+            Ho preso..
+            <div class="container row">
+                <button type="button" onclick="sendEvent('headache')">Eletriptan</button>
+                <button type="button" onclick="sendEvent('headache')">Indoxen</button>
+                <button type="button" onclick="sendEvent('headache')">Tachipirina</button>
+            </div>
+        </div>
+
+        <div style="height: 40px; background-color: #ffffff;"></div>
+
+        <div class="container row">
+            <button type="button" onclick="reportProblem()">Problema?</button>
+            <button type="button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
 </body>
 
 </html>
