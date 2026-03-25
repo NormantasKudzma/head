@@ -49,6 +49,12 @@
         }
 
         function oauthSignIn() {
+            if ((localStorage.getItem('tok') || "") != "" && (localStorage.getItem('exp') || 0) > Date.now()) {
+                gapi.client.setToken(params['access_token']);
+                onAuthFinished();
+                return;
+            }
+
             // Parse query string to see if page request is coming from OAuth 2.0 server.
             var fragmentString = location.hash.substring(1);
             var params = {};
@@ -58,10 +64,11 @@
             }
 
             if (Object.keys(params).length > 0 && params['access_token']) {
-                    localStorage.setItem('oauth2-test-params', JSON.stringify(params));
-
-                    // NO LOGIN NEEDED
-                    return;
+                localStorage.setItem('exp', (Date.now() + params['expires_in'] - 240) | 0)
+                localStorage.setItem('tok', params['access_token']);
+                gapi.client.setToken(params['access_token']);
+                onAuthFinished();
+                return;
             }
 
             // Google's OAuth 2.0 endpoint for requesting an access token
@@ -97,7 +104,7 @@
         }
 
         function gisLoaded() {
-            codeClient = google.accounts.oauth2.initCodeClient({
+            /*codeClient = google.accounts.oauth2.initCodeClient({
                 client_id: '943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com',
                 scope: 'https://www.googleapis.com/auth/spreadsheets',
                 ux_mode: 'popup',
@@ -113,16 +120,7 @@
                     xhr.send('code=' + response.code);
                 },
             });
-            /*tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: "943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com",
-                scope: 'https://www.googleapis.com/auth/spreadsheets',
-                auto_select: true,
-                callback: (tokenResponse) => {
-                    if (tokenResponse && tokenResponse.access_token) {
-                        //STUB
-                    }
-                },
-            });*/
+            */
             gisInited = true;
         }
 
@@ -136,8 +134,10 @@
 
 
             oauthSignIn();
-            //codeClient.requestCode();
-            //tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? '' : 'consent' });
+        }
+
+        function onAuthFinished() {
+            // Enable buttons
         }
 
         async function sendEvent(event) {
