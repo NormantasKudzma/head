@@ -137,6 +137,7 @@
 
         async function sendEvent(event) {
             showStatus("In trasmissione..", color_warn)
+            lockButtons(true)
 
             const metadata = `v${API_VERSION}.${(Date.now() / 1000) | 0}`;
             const eventDate = document.getElementById("date").value.split("-").reverse().join("/");
@@ -196,8 +197,13 @@
             location_element.querySelectorAll("input").forEach(e => e.checked = false);
             location_element.querySelectorAll("input").forEach(e => e.disabled = !authorized);
 
-            document.getElementById("buttonsactive").querySelectorAll("button").forEach(e => e.disabled = !authorized);
-            document.getElementById("buttonspills").querySelectorAll("button").forEach(e => e.disabled = !authorized);
+            lockButtons(!authorized)
+        }
+
+        function lockButtons(do_lock) {
+            document.getElementById("buttonsactive").querySelectorAll("button").forEach(e => e.disabled = do_lock);
+            document.getElementById("buttonspills").querySelectorAll("button").forEach(e => e.disabled = do_lock);
+
         }
 
         function showStatus(status, color) {
@@ -302,9 +308,9 @@
                 <div id="buttonspills" class="container col">
                     Ho preso..
                     <div class="container row">
-                        <button type="button" onclick="sendEvent('headache')">Eletriptan</button>
-                        <button type="button" onclick="sendEvent('headache')">Indoxen</button>
-                        <button type="button" onclick="sendEvent('headache')">Tachipirina</button>
+                        <button type="button" onclick="sendEvent('pill Eletriptan')">Eletriptan</button>
+                        <button type="button" onclick="sendEvent('pill Indoxen')">Indoxen</button>
+                        <button type="button" onclick="sendEvent('pill Tachipirina')">Tachipirina</button>
                     </div>
                 </div>
 
