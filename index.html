@@ -52,7 +52,12 @@
             tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: "943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com",
                 scope: 'https://www.googleapis.com/auth/spreadsheets',
-                callback: '',
+                auto_select: true,
+                callback: (tokenResponse) => {
+                    if (tokenResponse && tokenResponse.access_token) {
+                        //STUB
+                    }
+                },
             });
             gisInited = true;
         }
@@ -61,6 +66,7 @@
             await gapi.client.init({
                 apiKey: "AIzaSyCNKBzuYsmq-xSK0coA6OMAng6woa0TsoE",
                 discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
+                auto_select: true
             });
             gapiInited = true;
 
@@ -69,7 +75,7 @@
 
         async function sendEvent(event) {
             const metadata = `v${API_VERSION}.${(Date.now() / 1000) | 0}`;
-            const eventDate = document.getElementById("date").value;
+            const eventDate = document.getElementById("date").value.split("-").reverse().join("/");
             const eventTime = document.getElementById("time").value;
             const howBad = document.getElementById("livello").value || "-";
             const painType = document.getElementById("tipo").value || "Indeterminato";
@@ -111,7 +117,6 @@
     <div id="g_id_onload" data-client_id="943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com"
         data-callback="handleCredentialResponse" data-auto_select="true">
     </div>
-    <div class="g_id_signin" data-type="standard" data-onsuccess="onSignIn"></div>
 
     <div class="container col">
         <div class="container row">
