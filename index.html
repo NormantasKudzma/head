@@ -49,7 +49,23 @@
         }
 
         function gisLoaded() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
+            codeClient = google.accounts.oauth2.initCodeClient({
+                client_id: '943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com',
+                scope: 'https://www.googleapis.com/auth/spreadsheets',
+                ux_mode: 'popup',
+                callback: (response) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', "https://oauth2.example.com/code", true);
+                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    // Set custom header for CRSF
+                    xhr.setRequestHeader('X-Requested-With', 'XmlHttpRequest');
+                    xhr.onload = function () {
+                        console.log('Auth code response: ' + xhr.responseText);
+                    };
+                    xhr.send('code=' + response.code);
+                },
+            });
+            /*tokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: "943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com",
                 scope: 'https://www.googleapis.com/auth/spreadsheets',
                 auto_select: true,
@@ -58,7 +74,7 @@
                         //STUB
                     }
                 },
-            });
+            });*/
             gisInited = true;
         }
 
@@ -70,7 +86,8 @@
             });
             gapiInited = true;
 
-            tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? '' : 'consent' });
+            codeClient.requestCode();
+            //tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? '' : 'consent' });
         }
 
         async function sendEvent(event) {
