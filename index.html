@@ -24,6 +24,11 @@
             padding: 4px;
             font-size: 18px;
         }
+
+        .nospacing {
+            margin: 0px;
+            padding: 0px;
+        }
     </style>
 
     <script src="https://accounts.google.com/gsi/client" async defer onload="gisLoaded()"></script>
@@ -64,8 +69,8 @@
 
             if (Object.keys(params).length > 0 && params['access_token']) {
                 localStorage.setItem('exp', Date.now() + params['expires_in'] - 240)
-                localStorage.setItem('tok', params['access_token']);
-                onAuthFinished(params['access_token']);
+                localStorage.setItem('tok', JSON.stringify(params));
+                onAuthFinished(JSON.stringify(params));
                 return;
             }
 
@@ -126,8 +131,8 @@
         }
 
         function onAuthFinished(token) {
-            gapi.client.setToken(token);
-            tokenClient.requestAccessToken({prompt: ''});
+            gapi.client.setToken(JSON.parse(token));
+            //tokenClient.requestAccessToken({prompt: ''});
             // Enable buttons
         }
 
@@ -205,39 +210,39 @@
             Locazione
             <div id="pain_locations" class="container col"
                 style="overflow:scroll; height:100px; padding: 0px; margin: 0px">
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check1" value="Testa fronte"></input>
                     <label for="check1">Testa fronte</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check2" value="Testa top"></input>
                     <label for="check2">Testa top</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check3" value="Tempia"></input>
                     <label for="check3">Tempia</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check4" value="Cervicale"></input>
                     <label for="check4">Cervicale</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check5" value="Occhi"></input>
                     <label for="check5">Occhi</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check6" value="Sopra le occhi"></input>
                     <label for="check6">Sopra le occhi</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check7" value="Zigomi"></input>
                     <label for="check7">Zigomi</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check8" value="Teeth"></input>
                     <label for="check8">Teeth</label>
                 </div>
-                <div>
+                <div class="nospacing">
                     <input type="checkbox" name="check9" value="Bocca"></input>
                     <label for="check9">Bocca</label>
                 </div>
