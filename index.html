@@ -71,8 +71,6 @@
             let metadata = `v${API_VERSION}.${Date.now() / 1000}`;
             let eventDate = document.getElementById("date").value;
             let eventTime = document.getElementById("time").value;
-
-
             let howBad = document.getElementById("livello").value;
             let painType = document.getElementById("tipo").value;
 
@@ -84,7 +82,13 @@
                 .map(element => element.value)
                 .join(',');
 
-                //actually send
+            gapi.client.sheets.spreadsheets.values.append({
+                spreadsheetId: "1OzjaMz48AsuwnLIZ1X8WrazhK-3b8xT9ZQZ5Nb5710g",
+                range: "Sheet1!A1",
+                insertDataOption: "INSERT_ROWS",
+                valueInputOption: "RAW",
+                values: [[metadata], ["accountId"], [eventDate], [eventTime], [event], [howBad], [painType], [painLocations]]
+            })
         }
 
         function reportProblem() {
