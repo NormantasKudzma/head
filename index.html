@@ -48,6 +48,39 @@
             gapi.load('client', initializeGapiClient);
         }
 
+        function oauthSignIn() {
+            // Google's OAuth 2.0 endpoint for requesting an access token
+            var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
+
+            // Create <form> element to submit parameters to OAuth 2.0 endpoint.
+            var form = document.createElement('form');
+            form.setAttribute('method', 'GET'); // Send as a GET request.
+            form.setAttribute('action', oauth2Endpoint);
+
+            // Parameters to pass to OAuth 2.0 endpoint.
+            var params = {
+                'client_id': '943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com',
+                'redirect_uri': 'https://normantaskudzma.github.io/head/',
+                'response_type': 'token',
+                'scope': 'https://www.googleapis.com/auth/spreadsheets',
+                'include_granted_scopes': 'true',
+                'state': 'pass-through value'
+            };
+
+            // Add form parameters as hidden input values.
+            for (var p in params) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'hidden');
+                input.setAttribute('name', p);
+                input.setAttribute('value', params[p]);
+                form.appendChild(input);
+            }
+
+            // Add form to page and submit it to open the OAuth 2.0 endpoint.
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         function gisLoaded() {
             codeClient = google.accounts.oauth2.initCodeClient({
                 client_id: '943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com',
@@ -86,7 +119,9 @@
             });
             gapiInited = true;
 
-            codeClient.requestCode();
+
+            oauthSignIn();
+            //codeClient.requestCode();
             //tokenClient.requestAccessToken({ prompt: gapi.client.getToken() ? '' : 'consent' });
         }
 
@@ -131,9 +166,9 @@
 </head>
 
 <body onload="ready()">
-    <div id="g_id_onload" data-client_id="943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com"
+    <!--<div id="g_id_onload" data-client_id="943891308960-qj0asv64k0lvmnvhn5m5hobubtecft1p.apps.googleusercontent.com"
         data-callback="handleCredentialResponse" data-auto_select="true">
-    </div>
+    </div>-->
 
     <div class="container col">
         <div class="container row">
