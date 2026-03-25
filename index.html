@@ -49,6 +49,24 @@
         }
 
         function oauthSignIn() {
+            // Parse query string to see if page request is coming from OAuth 2.0 server.
+            var fragmentString = location.hash.substring(1);
+            var params = {};
+            var regex = /([^&=]+)=([^&]*)/g, m;
+            while (m = regex.exec(fragmentString)) {
+                params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+            }
+            if (Object.keys(params).length > 0 && params['state']) {
+                if (params['state'] == localStorage.getItem('state')) {
+                    localStorage.setItem('oauth2-test-params', JSON.stringify(params));
+
+                    // NO LOGIN NEEDED
+                    return;
+                } else {
+                    console.log('State mismatch. Possible CSRF attack');
+                }
+            }
+
             // Google's OAuth 2.0 endpoint for requesting an access token
             var oauth2Endpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
 
