@@ -15,14 +15,23 @@
             background-color: #f1f1f1;
             margin: 4px;
             padding: 4px;
-            font-size: 18px;
+            font-size: 32px;
         }
 
-        .container button {
-            background-color: #ebeae5;
+        .container input {
+            display: flex;
+            background-color: #f1f1f1;
             margin: 4px;
             padding: 4px;
-            font-size: 18px;
+            font-size: 32px;
+        }
+        
+        .container button {
+            display: flex;
+            background-color: #f1f1f1;
+            margin: 4px;
+            padding: 4px;
+            font-size: 32px;
         }
 
         .nospacing {
@@ -227,7 +236,9 @@
         data-callback="handleCredentialResponse" data-auto_select="true">
     </div>
 
-    <div id="status" class="container" style="height:20px; padding: 20px; font-size: 18;">Pagina in caricamento..</div>
+    <div class="container col" style="height:20px; padding: 20px; font-size: 18;">
+        <div id="status">Pagina in caricamento..</div>
+    </div>
 
     <div class="container col">
         <div class="container row">
@@ -257,7 +268,7 @@
                 <div class="container col">
                     Locazione
                     <div id="pain_locations" class="container col"
-                        style="overflow:scroll; height:100px; padding: 0px; margin: 0px">
+                        style="overflow:scroll; height:160px;">
                         <div class="nospacing">
                             <input type="checkbox" name="check1" value="Testa fronte"></input>
                             <label for="check1">Testa fronte</label>
