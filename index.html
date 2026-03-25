@@ -56,15 +56,12 @@
             while (m = regex.exec(fragmentString)) {
                 params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
             }
-            if (Object.keys(params).length > 0 && params['state']) {
-                if (params['state'] == localStorage.getItem('state')) {
+
+            if (Object.keys(params).length > 0 && params['access_token']) {
                     localStorage.setItem('oauth2-test-params', JSON.stringify(params));
 
                     // NO LOGIN NEEDED
                     return;
-                } else {
-                    console.log('State mismatch. Possible CSRF attack');
-                }
             }
 
             // Google's OAuth 2.0 endpoint for requesting an access token
