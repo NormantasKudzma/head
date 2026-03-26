@@ -89,7 +89,7 @@
             }
 
             if (Object.keys(params).length > 0 && params['access_token']) {
-                localStorage.setItem('exp', Date.now() + params['expires_in'] - 240)
+                localStorage.setItem('exp', Date.now() + (+params['expires_in']) - 240)
                 localStorage.setItem('tok', JSON.stringify(params));
                 onAuthFinished(JSON.stringify(params));
                 return;
@@ -233,7 +233,10 @@
         }
 
         function logout() {
-
+            const access_token = localStorage.getItem('tok')
+            google?.accounts?.oauth2?.revoke?.(access_token)
+            localStorage.clear();
+            location.reload();
         }
     </script>
 </head>
