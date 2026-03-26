@@ -25,7 +25,7 @@
             padding: 4px;
             font-size: 32px;
         }
-        
+
         .container button {
             display: flex;
             background-color: #f1f1f1;
@@ -44,11 +44,12 @@
     <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
 
     <script>
-        const API_VERSION = 1;
+        const API_VERSION = 2;
         const color_ok = "#7ABA2D";
         const color_warn = "#F2D23D";
         const color_err = "#BA4840";
-        var authorized = false;
+        let authorized = false;
+        let currentAccount = void 0;
 
         function decodeJwtResponse(token) {
             var base64Url = token.split('.')[1];
@@ -160,7 +161,9 @@
                 .toArray()
                 .filter(element => element.checked)
                 .map(element => element.value)
-                .join(',');
+                .join(',') || "-";
+
+            const comments = document.getElementById("commenti").value || "-";
 
             try {
                 const response = await gapi.client.sheets.spreadsheets.values.append({
@@ -168,7 +171,7 @@
                     range: "Sheet1!A1",
                     insertDataOption: "INSERT_ROWS",
                     valueInputOption: "RAW",
-                    values: [[metadata, currentAccount || "(unknown google account)", eventDate, eventTime, event, howBad, painType, painLocations]]
+                    values: [[metadata, currentAccount || "(unknown google account)", eventDate, eventTime, event, howBad, painType, painLocations, comments]]
                 })
                 console.log(response)
                 showStatus("Inviato su excel!", color_ok)
@@ -177,7 +180,7 @@
             }
             catch (e) {
                 console.log(e)
-                showStatus(`Error! ${JSON.stringify(e)}`, color_err)
+                showStatus(`Error! ${JSON.stringify(e.valueOf?.() || e.toString())}`, color_err)
                 cleanup()
             }
         }
@@ -205,6 +208,10 @@
             const location_element = document.getElementById("pain_locations");
             location_element.querySelectorAll("input").forEach(e => e.checked = false);
             location_element.querySelectorAll("input").forEach(e => e.disabled = !authorized);
+
+            const comment_element = document.getElementById("commenti");
+            comment_element.disabled = !authorized;
+            comment_element.value = "";
 
             lockButtons(!authorized)
         }
@@ -255,83 +262,88 @@
                 <input type="radio" value="forte" name="livello">Forte</input>
                 </fieldset>
             </div>
+        </div>
+
+        <div class="container col">
+            Tipo di dolore
+            <div id="tipo" name="tipo">
+                <input type="radio" value="indeterminato" name="tipo" checked>Indeterminato</input>
+                <input type="radio" value="micranea" name="tipo">Micranea</input>
+                <input type="radio" value="tensione" name="tipo">Tensione</input>
+                </fieldset>
+            </div>
 
             <div class="container col">
-                Tipo di dolore
-                <div id="tipo" name="tipo">
-                    <input type="radio" value="indeterminato" name="tipo" checked>Indeterminato</input>
-                    <input type="radio" value="micranea" name="tipo">Micranea</input>
-                    <input type="radio" value="tensione" name="tipo">Tensione</input>
-                    </fieldset>
-                </div>
-
-                <div class="container col">
-                    Locazione
-                    <div id="pain_locations" class="container col"
-                        style="overflow:scroll; height:160px;">
-                        <div class="nospacing">
-                            <input type="checkbox" name="check1" value="Testa fronte"></input>
-                            <label for="check1">Testa fronte</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check2" value="Testa top"></input>
-                            <label for="check2">Testa top</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check3" value="Tempia"></input>
-                            <label for="check3">Tempia</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check4" value="Cervicale"></input>
-                            <label for="check4">Cervicale</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check5" value="Occhi"></input>
-                            <label for="check5">Occhi</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check6" value="Sopra le occhi"></input>
-                            <label for="check6">Sopra le occhi</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check7" value="Zigomi"></input>
-                            <label for="check7">Zigomi</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check8" value="Teeth"></input>
-                            <label for="check8">Teeth</label>
-                        </div>
-                        <div class="nospacing">
-                            <input type="checkbox" name="check9" value="Bocca"></input>
-                            <label for="check9">Bocca</label>
-                        </div>
+                Locazione
+                <div id="pain_locations" class="container col">
+                    <div class="nospacing">
+                        <input type="checkbox" name="check1" value="Testa fronte"></input>
+                        <label for="check1">Testa fronte</label>
                     </div>
-                </div>
-
-                <div id="buttonsactive" class="container col">
-                    Mal di testa..
-                    <div class="container row">
-                        <button type="button" onclick="sendEvent('headache')">Attivo</button>
-                        <button type="button" onclick="sendEvent('headache ended')">Fino</button>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check2" value="Testa top"></input>
+                        <label for="check2">Testa top</label>
                     </div>
-                </div>
-
-                <div id="buttonspills" class="container col">
-                    Ho preso..
-                    <div class="container row">
-                        <button type="button" onclick="sendEvent('pill Eletriptan')">Eletriptan</button>
-                        <button type="button" onclick="sendEvent('pill Indoxen')">Indoxen</button>
-                        <button type="button" onclick="sendEvent('pill Tachipirina')">Tachipirina</button>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check3" value="Tempia"></input>
+                        <label for="check3">Tempia</label>
                     </div>
-                </div>
-
-                <div style="height: 40px"></div>
-
-                <div class="container row">
-                    <button type="button" onclick="reportProblem()">Problema?</button>
-                    <button type="button" onclick="logout()">Logout</button>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check4" value="Cervicale"></input>
+                        <label for="check4">Cervicale</label>
+                    </div>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check5" value="Occhi"></input>
+                        <label for="check5">Occhi</label>
+                    </div>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check6" value="Sopra le occhi"></input>
+                        <label for="check6">Sopra le occhi</label>
+                    </div>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check7" value="Zigomi"></input>
+                        <label for="check7">Zigomi</label>
+                    </div>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check8" value="Teeth"></input>
+                        <label for="check8">Teeth</label>
+                    </div>
+                    <div class="nospacing">
+                        <input type="checkbox" name="check9" value="Bocca"></input>
+                        <label for="check9">Bocca</label>
+                    </div>
                 </div>
             </div>
+
+            <div>
+                Commenti: 
+                <input type="text" id="commenti">
+            </div>
+
+            <div id="buttonsactive" class="container col">
+                Mal di testa..
+                <div class="container row">
+                    <button type="button" onclick="sendEvent('headache')">Attivo</button>
+                    <button type="button" onclick="sendEvent('headache ended')">Fino</button>
+                </div>
+            </div>
+
+            <div id="buttonspills" class="container col">
+                Ho preso..
+                <div class="container row">
+                    <button type="button" onclick="sendEvent('pill Eletriptan')">Eletriptan</button>
+                    <button type="button" onclick="sendEvent('pill Indoxen')">Indoxen</button>
+                    <button type="button" onclick="sendEvent('pill Tachipirina')">Tachipirina</button>
+                </div>
+            </div>
+
+            <div style="height: 40px"></div>
+
+            <div class="container row">
+                <button type="button" onclick="reportProblem()">Problema?</button>
+                <button type="button" onclick="logout()">Logout</button>
+            </div>
+        </div>
 
 </body>
 
